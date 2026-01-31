@@ -5,6 +5,7 @@ const UserServer = require("../managers/http/UserServer.manager");
 const ResponseDispatcher = require("../managers/response_dispatcher/ResponseDispatcher.manager");
 const VirtualStack = require("../managers/virtual_stack/VirtualStack.manager");
 const ValidatorsLoader = require("./ValidatorsLoader");
+const MongoLoader = require("./MongoLoader");
 const ResourceMeshLoader = require("./ResourceMeshLoader");
 const utils = require("../libs/utils");
 
@@ -34,22 +35,31 @@ module.exports = class ManagersLoader {
       aeon,
       managers: this.managers,
       validators: this.validators,
-      // mongomodels: this.mongomodels,
+      mongomodels: this.mongomodels,
       resourceNodes: this.resourceNodes,
     };
   }
 
   _preload() {
+    const studentSchemas = require("../managers/entities/school/student/student.schema");
+    const commonModels = require("../managers/_common/schema.models")
+
+    const allModels = {
+      ...studentSchemas,
+      ...commonModels
+    };
+
     const validatorsLoader = new ValidatorsLoader({
-      models: require("../managers/_common/schema.models"),
+      models: allModels,
       customValidators: require("../managers/_common/schema.validators"),
     });
     const resourceMeshLoader = new ResourceMeshLoader({});
-    // const mongoLoader      = new MongoLoader({ schemaExtension: "mongoModel.js" });
+
+    const mongoLoader = new MongoLoader({ schemaExtension: "schema.js" });
 
     this.validators = validatorsLoader.load();
+    this.mongomodels = mongoLoader.load();
     this.resourceNodes = resourceMeshLoader.load();
-    // this.mongomodels          = mongoLoader.load();
   }
 
   load() {
@@ -67,6 +77,12 @@ module.exports = class ManagersLoader {
     this.managers.mwsExec = new VirtualStack({
       ...{ preStack: [/* '__token', */ "__device"] },
       ...this.injectable,
+    });
+
+    const StudentManager = require("../managers/entities/school/student/Student.manager");
+    this.managers.student = new StudentManager({
+      ...this.injectable,
+      mongomodels: this.mongomodels,
     });
 
     this.managers.userApi = new ApiHandler({
