@@ -2,7 +2,6 @@ const config = require("./config/index.config.js");
 const Cortex = require("ion-cortex");
 const ManagersLoader = require("./loaders/ManagersLoader.js");
 
-console.log(config)
 const mongoDB = config.MONGO_URI
   ? require("./connect/mongo")({
       uri: config.MONGO_URI,
