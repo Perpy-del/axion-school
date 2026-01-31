@@ -10,5 +10,7 @@ flowchart TB
   HTTP --> API
 
   - Set up the different environment and add it to script to run development and production environment separately
+
+  - Set up nodemon for reload anytime we save new changes without having to stop and start the project process over and over again.
   
   

@@ -9,24 +9,20 @@ module.exports = class StudentManager {
   }
 
   async createStudent({ res, ...data }) {
-    console.log("Validator Keys:", Object.keys(this.validators));
-    if (this.validators.student) {
-      console.log(
-        "Internal Keys for 'student':",
-        Object.keys(this.validators.student),
-      );
-    }
-
     // Validation
-    if (!this.validators.student) {
-      console.error(
-        "❌ Validator 'student' not found. Available:",
-        Object.keys(this.validators),
-      );
-      return { ok: false, message: "Internal validation error" };
+    let result = await this.validators.student.student({ student: data });
+
+    if (!result) {
+      return { ok: false, message: "Validation failed to return a result." };
     }
 
-    let result = await this.validators.student.student(data);
+    if (result.errors && result.errors.length > 0) {
+      return {
+        ok: false,
+        message: "Validation Error",
+        errors: result.errors,
+      };
+    }
 
     if (result.errors) {
       return { ok: false, errors: result.errors };
@@ -34,7 +30,6 @@ module.exports = class StudentManager {
 
     // Logic
     // check if student exists
-    console.log("Available Mongo Models:", Object.keys(this.mongomodels));
     const existingStudent = await this.mongomodels.student.findOne({
       email: data.email,
     });

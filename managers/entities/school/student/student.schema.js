@@ -1,55 +1,81 @@
+const { password, label } = require("../../../_common/schema.models");
+
 module.exports = {
   student: {
     firstName: {
-      type: "String",
-      length: {
-        min: 3,
-        max: 100,
-      },
+      label: "First Name",
+      type: "string",
+      length: { min: 3, max: 100 },
+      message: "First name must be between 3 and 100 characters.",
       required: true,
     },
     lastName: {
-      type: String,
-      length: {
-        min: 3,
-        max: 100,
-      },
+      label: "Last Name",
+      type: "string",
+      length: { min: 3, max: 100 },
+      message: "Last name must be between 3 and 100 characters.",
       required: true,
     },
     email: {
-      type: "String",
+      label: "Email Address",
+      type: "string",
       length: { min: 3, max: 100 },
-      format: "email",
+      regex: "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+      message: "Please enter a valid email address.",
       required: true,
     },
-    age: { type: Number },
-    classId: { type: String, required: false },
+    age: { label: "Age", type: "number", message: "Age must be a number." },
+    classId: {
+      label: "Class ID",
+      type: "string",
+      message: "Invalid Class ID.",
+      required: false,
+      path: "classroom",
+    },
     gender: {
-      type: "String",
-      oneOf: ["male", "female", "other"],
+      label: "Gender",
+      type: "string",
+      enum: ["male", "female", "other"],
+      message: "Please select a valid gender.",
     },
     schoolId: {
-      type: String,
+      label: "School ID",
+      type: "string",
+      required: true,
+      path: "school",
+      message: "Invalid School ID.",
     },
     profileImage: {
-      type: "String",
+      label: "Profile Image",
+      type: "string",
+      message: "Profile image must be a valid URL.",
     },
-    parents: [
-      {
+    parents: {
+      label: "Parents",
+      type: "array",
+      message: "Parents must be an array.",
+      items: {
+        label: "Parent",
         name: {
-          type: "String",
+          label: "Name",
+          type: "string",
           length: { min: 3, max: 100 },
+          message: "Parent name must be between 3 and 100 characters.",
         },
         phone: {
-          type: "String",
+          label: "Phone Number",
+          type: "string",
           length: { min: 10, max: 13 },
+          message: "Parent phone number must be between 10 and 13 characters.",
         },
       },
-    ],
+    },
     password: {
-      type: "String",
+      label: "Password",
+      type: "string",
       length: { min: 8, max: 100 },
       required: true,
+      message: "Password must be between 8 and 100 characters.",
     },
   },
 };
