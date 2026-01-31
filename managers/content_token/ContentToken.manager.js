@@ -11,7 +11,7 @@ const {
 module.exports = class ContentToken {
 
     constructor({config}){
-      this.nacl_secret = config.dotEnv.NACL_SECRET;
+      this.nacl_secret = config.NACL_SECRET;
     }
 
     _newNonce(){

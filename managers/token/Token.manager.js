@@ -31,7 +31,7 @@ module.exports = class TokenManager {
                 userKey, 
                 userId,
             }, 
-            this.config.dotEnv.LONG_TOKEN_SECRET, 
+            this.config.LONG_TOKEN_SECRET, 
             {expiresIn: this.longTokenExpiresIn
         })
     }
@@ -39,7 +39,7 @@ module.exports = class TokenManager {
     genShortToken({userId, userKey, sessionId, deviceId}){
         return jwt.sign(
             { userKey, userId, sessionId, deviceId}, 
-            this.config.dotEnv.SHORT_TOKEN_SECRET, 
+            this.config.SHORT_TOKEN_SECRET, 
             {expiresIn: this.shortTokenExpiresIn
         })
     }
@@ -53,10 +53,10 @@ module.exports = class TokenManager {
     }
 
     verifyLongToken({token}){
-        return this._verifyToken({token, secret: this.config.dotEnv.LONG_TOKEN_SECRET,})
+        return this._verifyToken({token, secret: this.config.LONG_TOKEN_SECRET,})
     }
     verifyShortToken({token}){
-        return this._verifyToken({token, secret: this.config.dotEnv.SHORT_TOKEN_SECRET,})
+        return this._verifyToken({token, secret: this.config.SHORT_TOKEN_SECRET,})
     }
 
 

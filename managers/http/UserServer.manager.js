@@ -7,6 +7,7 @@ module.exports = class UserServer {
     constructor({config, managers}){
         this.config        = config;
         this.userApi       = managers.userApi;
+        this.managers      = managers;
     }
     
     /** for injecting middlewares */
@@ -31,8 +32,8 @@ module.exports = class UserServer {
         app.all('/api/:moduleName/:fnName', this.userApi.mw);
 
         let server = http.createServer(app);
-        server.listen(this.config.dotEnv.USER_PORT, () => {
-            console.log(`${(this.config.dotEnv.SERVICE_NAME).toUpperCase()} is running on port: ${this.config.dotEnv.USER_PORT}`);
+        server.listen(this.config.PORT, () => {
+            console.log(`${(this.config.serviceName).toUpperCase()} is running on port: ${this.config.PORT}`);
         });
     }
 }

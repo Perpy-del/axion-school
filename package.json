@@ -4,10 +4,13 @@
   "description": "Boilerplate",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "set NODE_ENV=development && nodemon app.js",
+    "prod": "set NODE_ENV=production && node app.js"
   },
   "author": "",
   "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
     "aeon-machine": "^0.0.9",
     "bcrypt": "^5.0.1",
@@ -15,12 +18,15 @@
     "debug": "^4.3.4",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "oyster-db": "*",
     "ion-cortex": "^1.3.6",
+    "ioredis": "^5.9.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "md5": "^2.3.0",
+    "mongoose": "^9.1.5",
     "nanoid": "^3.3.2",
+    "nodemon": "^3.1.11",
+    "oyster-db": "*",
     "qantra-pineapple": "^1.0.7",
     "request-ip": "^2.1.3",
     "useragent": "^2.3.0"
