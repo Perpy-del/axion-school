@@ -1,16 +1,29 @@
-flowchart TB
-  A[app.js / index.js] --> L[loaders/ManagersLoader]
-  L --> M[managers/* (domain)]
-  L --> MW[mws/* (middleware)]
-  M --> DB[Mongoose / LiveDb / Oyster]
-  M --> CACHE[Redis / Cortex]
-  M --> RESP[ResponseDispatcher]
-  API[Api.manager] -->|mounts| USER[UserServer.manager]
-  USER --> HTTP[Express route /api/:module/:fnName]
-  HTTP --> API
+# Axion Educational Management System
 
-  - Set up the different environment and add it to script to run development and production environment separately
+A high-performance, modular Node.js backend designed for school administration. This project utilizes a custom **Manager-Loader** architecture to ensure clear separation of concerns, scalability, and automated dependency injection.
 
-  - Set up nodemon for reload anytime we save new changes without having to stop and start the project process over and over again.
-  
-  
+---
+
+## 📂 Project Structure
+
+The project is organized by functional entities. Each entity is self-contained with its own validation, database blueprint, and business logic.
+
+```text
+root/
+├── loaders/                  # System initializers
+│   ├── MongoLoader.js        # Turns .schema.js into live Mongoose Models
+│   ├── ValidatorsLoader.js   # Compiles Joi schemas into executable functions
+│   └── ManagersLoader.js     # The "Brain" that wires everything together
+├── managers/
+│   ├── _common/              # Shared schemas and validation logic
+│   ├── api/                  # HTTP/Cortex API Handlers
+│   ├── entities/             # Core Business Domains
+│   │   └── school/           
+│   │       ├── student/      # Student Entity
+│   │       │   ├── student.manager.js    # Business Logic
+│   │       │   ├── student.schema.js     # Mongoose Blueprint (DB Structure)
+│   │       │   └── student.validator.js  # Joi Gatekeeper (Input Validation)
+│   │       └── schools/      # School Entity
+│   └── response_dispatcher/  # Standardized JSON output & Error handling
+├── libs/                     # Shared utilities (Encryption, Utils)
+└── static_arch/              # System architecture definitions

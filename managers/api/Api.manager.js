@@ -108,9 +108,11 @@ module.exports = class ApiHandler {
 
     try {
       result = await targetModule[`${fnName}`](data);
+
+      return this.managers.responseDispatcher.dispatch(data.res, result);
     } catch (err) {
-      console.log(`error`, err);
-      result.error = `${fnName} failed to execute`;
+      return this.managers.responseDispatcher.dispatchError(data.res, err);
+      // result.error = `${fnName} failed to execute`;
     }
 
     if (cb) cb(result);
@@ -159,7 +161,7 @@ module.exports = class ApiHandler {
         /** executed after all middleware finished */
 
         let body = req.body || {};
-        let result = await this._exec({
+        await this._exec({
           targetModule: this.managers[moduleName],
           fnName,
           data: {
@@ -168,28 +170,28 @@ module.exports = class ApiHandler {
             res,
           },
         });
-        if (!result) result = {};
+        // if (!result) result = {};
 
-        if (result.selfHandleResponse) {
-          // do nothing if response handeled
-        } else {
-          if (result.errors) {
-            return this.managers.responseDispatcher.dispatch(res, {
-              ok: false,
-              errors: result.errors,
-            });
-          } else if (result.error) {
-            return this.managers.responseDispatcher.dispatch(res, {
-              ok: false,
-              message: result.error,
-            });
-          } else {
-            return this.managers.responseDispatcher.dispatch(res, {
-              ok: true,
-              data: result,
-            });
-          }
-        }
+        // if (result.selfHandleResponse) {
+        //   // do nothing if response handeled
+        // } else {
+        //   if (result.errors) {
+        //     return this.managers.responseDispatcher.dispatch(res, {
+        //       ok: false,
+        //       errors: result.errors,
+        //     });
+        //   } else if (result.error) {
+        //     return this.managers.responseDispatcher.dispatch(res, {
+        //       ok: false,
+        //       message: result.error,
+        //     });
+        //   } else {
+        //     return this.managers.responseDispatcher.dispatch(res, {
+        //       ok: true,
+        //       data: result,
+        //     });
+        //   }
+        // }
       },
     });
     hotBolt.run();

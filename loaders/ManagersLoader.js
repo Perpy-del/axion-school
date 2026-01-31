@@ -41,24 +41,44 @@ module.exports = class ManagersLoader {
   }
 
   _preload() {
+    const studentValidators = require("../managers/entities/school/student/student.validators");
+    const schoolValidators = require("../managers/entities/school/schools/school.validator");
+    const schoolAdminValidators = require("../managers/entities/school/schools/schoolAdmin.validator");
+
     const studentSchemas = require("../managers/entities/school/student/student.schema");
+    const schoolSchemas = require("../managers/entities/school/schools/school.schema");
+    const schoolAdminSchemas = require("../managers/entities/school/schools/schoolAdmin.schema");
+
     const commonModels = require("../managers/_common/schema.models")
 
     const allModels = {
       ...studentSchemas,
+      ...schoolSchemas,
+      ...schoolAdminSchemas,
       ...commonModels
+    };
+
+    const allValidators = {
+      student: studentValidators,
+      school: schoolValidators,
+      schoolAdmin: schoolAdminValidators,
     };
 
     const validatorsLoader = new ValidatorsLoader({
       models: allModels,
+      validators: allValidators,
       customValidators: require("../managers/_common/schema.validators"),
     });
     const resourceMeshLoader = new ResourceMeshLoader({});
 
-    const mongoLoader = new MongoLoader({ schemaExtension: "schema.js" });
+    const mongoLoader = new MongoLoader();
 
     this.validators = validatorsLoader.load();
-    this.mongomodels = mongoLoader.load();
+    this.mongomodels = mongoLoader.load({
+      student: studentSchemas,
+      school: schoolSchemas,
+      schoolAdmin: schoolAdminSchemas,
+    });
     this.resourceNodes = resourceMeshLoader.load();
   }
 
@@ -81,6 +101,12 @@ module.exports = class ManagersLoader {
 
     const StudentManager = require("../managers/entities/school/student/Student.manager");
     this.managers.student = new StudentManager({
+      ...this.injectable,
+      mongomodels: this.mongomodels,
+    });
+
+    const SchoolManager = require("../managers/entities/school/schools/School.manager");
+    this.managers.school = new SchoolManager({
       ...this.injectable,
       mongomodels: this.mongomodels,
     });
