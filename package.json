@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "set NODE_ENV=development && nodemon app.js",
-    "prod": "pm2 start ecosystem.config.js --env production"
+    "prod": "set NODE_ENV=production && node app.js"
   },
   "author": "",
   "license": "ISC",
