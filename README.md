@@ -65,4 +65,6 @@ You add your local `.env` file, to add your variables to the project.
 ## Live URL
 [Base URL](https://axion-school-production.up.railway.app/api)
 
+## API Docs
+[Postman Docs](https://documenter.getpostman.com/view/43233732/2sBXVoAUKE)
 

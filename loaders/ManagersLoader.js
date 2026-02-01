@@ -49,13 +49,13 @@ module.exports = class ManagersLoader {
     const schoolSchemas = require("../managers/entities/school/schools/school.schema");
     const schoolAdminSchemas = require("../managers/entities/school/schools/schoolAdmin.schema");
 
-    const commonModels = require("../managers/_common/schema.models")
+    const commonModels = require("../managers/_common/schema.models");
 
     const allModels = {
       ...studentSchemas,
       ...schoolSchemas,
       ...schoolAdminSchemas,
-      ...commonModels
+      ...commonModels,
     };
 
     const allValidators = {
@@ -110,6 +110,9 @@ module.exports = class ManagersLoader {
       ...this.injectable,
       mongomodels: this.mongomodels,
     });
+
+    const HealthManager = require("../managers/entities/health/Health.manager");
+    this.managers.health = new HealthManager(this.injectable);
 
     this.managers.userApi = new ApiHandler({
       ...this.injectable,
