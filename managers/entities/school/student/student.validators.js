@@ -5,7 +5,7 @@ module.exports = {
     firstName: Joi.string().min(3).max(100).required(),
     lastName: Joi.string().min(3).max(100).required(),
     email: Joi.string().email().required(),
-    age: Joi.number().integer(),
+    age: Joi.number().integer().required(),
     gender: Joi.string().valid("male", "female", "other"),
     schoolId: Joi.string().required(),
     classId: Joi.string(),

@@ -1,7 +1,15 @@
 const mongoose = require("mongoose");
 
 module.exports = class SchoolManager {
-  constructor({ config, cache, cortex, mongomodels, validators, utils, managers }) {
+  constructor({
+    config,
+    cache,
+    cortex,
+    mongomodels,
+    validators,
+    utils,
+    managers,
+  }) {
     this.config = config;
     this.cache = cache;
     this.cortex = cortex;
@@ -25,6 +33,13 @@ module.exports = class SchoolManager {
         isDeleted: false,
       });
       userType = "teacher";
+    }
+
+    if (!user) {
+      user = await this.mongomodels.student.findOne({
+        email,
+      });
+      userType = "student";
     }
 
     if (!user) {

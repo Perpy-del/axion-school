@@ -10,6 +10,12 @@ const schoolAdminSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: String, default: "admin" },
     staffId: { type: String, required: true, unique: true },
+    role: {
+      type: String,
+      default: "schoolAdmin",
+      enum: ["schoolAdmin"],
+      immutable: true,
+    },
     schoolId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "School",

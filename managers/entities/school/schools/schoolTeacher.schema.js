@@ -34,6 +34,12 @@ const schoolTeacherSchema = new mongoose.Schema(
       ref: "School",
       required: true,
     },
+    role: {
+      type: String,
+      default: "teacher",
+      enum: ["teacher"],
+      immutable: true,
+    },
     isDeleted: { type: Boolean, default: false },
     teacherStaffId: { type: String, required: true, unique: true },
   },

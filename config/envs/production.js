@@ -15,4 +15,6 @@ module.exports = {
   CORTEX_TYPE: process.env.CORTEX_TYPE || process.env.SERVICE_NAME || 'axion-school',
   OYSTER_REDIS: process.env.OYSTER_REDIS || process.env.REDIS_URI_DEV || "redis://localhost:6379",
   OYSTER_PREFIX: process.env.OYSTER_PREFIX || 'none',
+  INITIAL_ADMIN_EMAIL: process.env.INITIAL_ADMIN_EMAIL,
+  INITIAL_ADMIN_PASSWORD: process.env.INITIAL_ADMIN_PASSWORD
 };

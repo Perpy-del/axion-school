@@ -162,6 +162,15 @@ const generateStaffId = (userType) => {
   return `${prefix}-${part1}-${part2}`;
 };
 
+const checkActionPermit = (__user, allowedRoles) => {
+    if (!__user || !allowedRoles.includes(__user.role)) {
+      const error = new Error("Unauthorized: Access denied");
+      error.status = 403;
+      throw error;
+    }
+    return true;
+  }
+
 module.exports = {
   slugify,
   getDeepValue,
@@ -178,4 +187,5 @@ module.exports = {
   encryptPassword,
   verifyPassword,
   generateStaffId,
+  checkActionPermit
 };

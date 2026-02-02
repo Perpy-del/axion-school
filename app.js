@@ -24,7 +24,33 @@ const cortex = new Cortex({
   idlDelay: "200ms",
 });
 
-const managersLoader = new ManagersLoader({ config, cache, cortex, mongoDB });
+const seedSuperAdmin = async (managers) => {
+  try {
+    const SuperAdminModel = managers.mongoDB.models.SuperAdmin;
+    const adminCount = await SuperAdminModel.countDocuments();
+
+    if (adminCount === 0) {
+      await managers.superAdmin.createSuperAdmin({
+        username: "axion_admin", // Ensure this matches your schema (username vs firstName)
+        email: process.env.INITIAL_ADMIN_EMAIL,
+        password: process.env.INITIAL_ADMIN_PASSWORD,
+      });
+      console.log("Initial SuperAdmin created successfully.");
+    }
+  } catch (error) {
+    console.error("Failed to seed SuperAdmin:", error);
+  }
+};
+
+const managersLoader = new ManagersLoader({
+  config,
+  cache,
+  cortex,
+  mongoDB,
+});
 const managers = managersLoader.load();
 
-managers.userServer.run();
+(async () => {
+  await seedSuperAdmin(managers);
+  managers.userServer.run();
+})();

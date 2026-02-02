@@ -22,10 +22,14 @@ module.exports = class SchoolManager {
       "post=createTeacher",
       "get=getTeacherDetails",
       "put=updateTeacherDetails",
+      "get=getTeachers",
+      "delete=deleteTeacher"
     ];
   }
 
   async create({ res, ...data }) {
+    this.utils.checkActionPermit(__user, ['superAdmin']);
+
     // Validation
     const result = await this.validators.school.create(data);
 
@@ -145,6 +149,8 @@ module.exports = class SchoolManager {
   }
 
   async deleteSchool({ res, schoolId }) {
+    this.utils.checkActionPermit(__user, ['superAdmin']);
+
     const existingSchool = await this.mongomodels.school.findById(schoolId);
 
     if (!existingSchool) {
@@ -164,6 +170,8 @@ module.exports = class SchoolManager {
   }
 
   async deleteSchoolDetails({ res, schoolId }) {
+    this.utils.checkActionPermit(__user, ['superAdmin']);
+
     const existingSchool = await this.mongomodels.school.findById(schoolId);
     if (!existingSchool) {
       return { ok: false, message: "School not found." };
@@ -287,6 +295,8 @@ module.exports = class SchoolManager {
   }
 
   async deleteAdmin({ adminId }) {
+    this.utils.checkActionPermit(__user, ['superAdmin']);
+
     const existingAdmin = await this.mongomodels.schoolAdmin.findById(adminId);
 
     if (!existingAdmin) {
@@ -300,6 +310,8 @@ module.exports = class SchoolManager {
 
   // School Teacher
   async createTeacher({ res, ...data }) {
+    this.utils.checkActionPermit(__user, ['superAdmin']);
+    
     const validatedData = await this.validators.schoolTeacher.create(data);
 
     const schoolExists = await this.mongomodels.school.exists({
@@ -386,14 +398,14 @@ module.exports = class SchoolManager {
     };
   }
 
-  async getAdmins({ schoolId }) {
+  async getTeachers({ schoolId }) {
     const school = await this.mongomodels.school.findById(schoolId);
 
     if (!school) {
       return { ok: false, message: "School not found." };
     }
 
-    const allAdminsInSchool = await this.mongomodels.schoolAdmin
+    const allTeachersInSchool = await this.mongomodels.schoolTeacher
       .find({
         schoolId,
       })
@@ -402,20 +414,20 @@ module.exports = class SchoolManager {
     return {
       ok: true,
       status: 200,
-      message: "School admins retrieved successfully.",
-      data: allAdminsInSchool,
+      message: "School teachers retrieved successfully.",
+      data: allTeachersInSchool,
     };
   }
 
-  async deleteAdmin({ adminId }) {
-    const existingAdmin = await this.mongomodels.schoolAdmin.findById(adminId);
+  async deleteTeacher({ teacherId }) {
+    const existingTeacher = await this.mongomodels.schoolTeacher.findById(teacherId);
 
-    if (!existingAdmin) {
-      return { ok: false, message: "School admin not found." };
+    if (!existingTeacher) {
+      return { ok: false, message: "School teacher not found." };
     }
 
-    await this.mongomodels.schoolAdmin.findByIdAndDelete(adminId);
+    await this.mongomodels.schoolTeacher.findByIdAndDelete(teacherId);
 
-    return { ok: true, message: "School admin deleted successfully." };
+    return { ok: true, message: "School teacher deleted successfully." };
   }
 };
