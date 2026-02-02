@@ -62,6 +62,7 @@ You add your local `.env` file, to add your variables to the project.
 * **Rate Limiting**: Protect your API from brute force attacks.
 * **Database Transaction (ACID)**: Implement transaction so that if any of the CRUD setup fails, the entire operation rolls back.
 * **Response Standardization**: Ensuring the `ResponseManager` to ensure every API response follows the same structure
+* **Image & Files Configuration**: Enable file and image storage and retrieval using files and image store e.g. Cloudinary
 
 ## Live URL
 [Base URL](https://axion-school-production.up.railway.app/api)

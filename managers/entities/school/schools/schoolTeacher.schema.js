@@ -27,6 +27,7 @@ const schoolTeacherSchema = new mongoose.Schema(
       ],
     },
     phone: { type: String, minlength: 10, maxlength: 13 },
+    address: { type: String, minLength: 15, maxlength: 100 },
     password: { type: String, required: true, minlength: 8 },
     schoolId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -34,12 +35,13 @@ const schoolTeacherSchema = new mongoose.Schema(
       required: true,
     },
     isDeleted: { type: Boolean, default: false },
+    teacherStaffId: { type: String, required: true, unique: true },
   },
   {
     timestamps: true,
     toJSON: {
       transform: (doc, ret) => {
-        delete ret.password; // Never send password back
+        delete ret.password;
         delete ret.__v;
         ret.id = ret._id;
         return ret;
@@ -48,7 +50,6 @@ const schoolTeacherSchema = new mongoose.Schema(
   },
 );
 
-// Auto-hide __v for .lean() calls
 schoolTeacherSchema.pre(["find", "findOne", "findById"], function () {
   this.select("-__v");
 });

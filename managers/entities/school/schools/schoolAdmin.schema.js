@@ -15,6 +15,7 @@ const schoolAdminSchema = new mongoose.Schema(
       ref: "School",
       required: true,
     },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

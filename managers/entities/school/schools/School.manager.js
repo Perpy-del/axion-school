@@ -19,6 +19,9 @@ module.exports = class SchoolManager {
       "put=updateAdminDetails",
       "get=getAdmins",
       "delete=deleteAdmin",
+      "post=createTeacher",
+      "get=getTeacherDetails",
+      "put=updateTeacherDetails",
     ];
   }
 
@@ -55,7 +58,7 @@ module.exports = class SchoolManager {
         // --- CREATE SCHOOL ---
         const newSchool = new this.mongomodels.school({
           ...result,
-          schoolAdminId: new mongoose.Types.ObjectId(), // Placeholder
+          schoolAdminId: new mongoose.Types.ObjectId(),
         });
         await newSchool.save({ session });
 
@@ -64,10 +67,13 @@ module.exports = class SchoolManager {
           result.admin.password,
         );
 
+        const customId = this.utils.generateStaffId("school_admin");
+
         const newSchoolAdmin = new this.mongomodels.schoolAdmin({
           ...result.admin,
           password: adminHashedPassword,
           schoolId: newSchool._id,
+          staffId: customId,
         });
         await newSchoolAdmin.save({ session });
 
@@ -192,9 +198,12 @@ module.exports = class SchoolManager {
 
     const hashedPassword = await this.utils.encryptPassword(data.password);
 
+    const customId = this.utils.generateStaffId("school_admin");
+
     const newAdmin = await this.mongomodels.schoolAdmin.create({
       ...data,
       password: hashedPassword,
+      staffId: customId,
     });
     await newAdmin.save();
 
@@ -291,28 +300,122 @@ module.exports = class SchoolManager {
 
   // School Teacher
   async createTeacher({ res, ...data }) {
-    const validatedData =
-      await this.validators.schoolTeacher.validateAsync(data);
+    const validatedData = await this.validators.schoolTeacher.create(data);
 
-    // 2. Check if School exists
     const schoolExists = await this.mongomodels.school.exists({
       _id: validatedData.schoolId,
     });
-    
+
     if (!schoolExists)
       return { ok: false, message: "Assigned school does not exist." };
 
-    // 3. Hash Password & Save
+    const existingTeacher = await this.mongomodels.schoolTeacher.findOne({ email: data.email })
+
+    if (existingTeacher) {
+      return {
+        ok: false,
+        message: "School teacher with this credential already exist.",
+      };
+    }
+
     validatedData.password = await this.utils.encryptPassword(
       validatedData.password,
     );
-    const newTeacher =
-      await this.mongomodels.schoolTeacher.create(validatedData);
+
+    const customId = this.utils.generateStaffId("teacher");
+
+    const newTeacher = await this.mongomodels.schoolTeacher.create({
+      ...validatedData,
+      teacherStaffId: customId,
+    });
 
     return {
       ok: true,
       message: "Teacher created successfully",
-      data: newTeacher,
+      data: { teacherId: newTeacher._id },
     };
+  }
+
+  async getTeacherDetails(data) {
+    const { teacherId, schoolId, res } = data;
+
+    if (!schoolId) return { ok: false, message: "schoolId is required." };
+    if (!teacherId) return { ok: false, message: "teacherId is required." };
+
+    const query = {
+      _id: teacherId,
+      schoolId: schoolId,
+    };
+
+    const teacher = await this.mongomodels.schoolTeacher
+      .findOne(query)
+      .lean()
+      .select("-password -_id");
+
+    if (!teacher) {
+      return {
+        ok: false,
+        message: "Teacher not found with the provided criteria.",
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      data: teacher,
+      message: "School teacher retrieved successfully",
+    };
+  }
+
+  async updateTeacherDetails({ res, teacherId, ...data }) {
+    const existingTeacher = await this.mongomodels.schoolTeacher.findById(teacherId);
+
+    if (!existingTeacher) {
+      return { ok: false, message: "School teacher not found." };
+    }
+
+    const updatedTeacher = await this.mongomodels.schoolTeacher
+      .findByIdAndUpdate(teacherId, data, { new: true })
+      .select("-password -_id");
+
+    return {
+      ok: true,
+      status: 200,
+      message: "School teacher updated successfully.",
+      data: updatedTeacher,
+    };
+  }
+
+  async getAdmins({ schoolId }) {
+    const school = await this.mongomodels.school.findById(schoolId);
+
+    if (!school) {
+      return { ok: false, message: "School not found." };
+    }
+
+    const allAdminsInSchool = await this.mongomodels.schoolAdmin
+      .find({
+        schoolId,
+      })
+      .select("-password -_id");
+
+    return {
+      ok: true,
+      status: 200,
+      message: "School admins retrieved successfully.",
+      data: allAdminsInSchool,
+    };
+  }
+
+  async deleteAdmin({ adminId }) {
+    const existingAdmin = await this.mongomodels.schoolAdmin.findById(adminId);
+
+    if (!existingAdmin) {
+      return { ok: false, message: "School admin not found." };
+    }
+
+    await this.mongomodels.schoolAdmin.findByIdAndDelete(adminId);
+
+    return { ok: true, message: "School admin deleted successfully." };
   }
 };

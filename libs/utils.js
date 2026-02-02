@@ -148,6 +148,20 @@ const verifyPassword = async (password, hashedPassword) => {
   return match;
 };
 
+const generateStaffId = (userType) => {
+  const prefixes = {
+    teacher: "TCH",
+    school_admin: "ADM",
+    student: "STU",
+  };
+
+  const prefix = prefixes[userType] || "USR"; 
+  const part1 = Math.floor(100 + Math.random() * 900);
+  const part2 = Math.floor(100 + Math.random() * 900);
+
+  return `${prefix}-${part1}-${part2}`;
+};
+
 module.exports = {
   slugify,
   getDeepValue,
@@ -163,4 +177,5 @@ module.exports = {
   isChance,
   encryptPassword,
   verifyPassword,
+  generateStaffId,
 };

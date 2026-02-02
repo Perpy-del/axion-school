@@ -44,17 +44,20 @@ module.exports = class ManagersLoader {
     const studentValidators = require("../managers/entities/school/student/student.validators");
     const schoolValidators = require("../managers/entities/school/schools/school.validator");
     const schoolAdminValidators = require("../managers/entities/school/schools/schoolAdmin.validator");
+    const schoolTeacherValidators = require("../managers/entities/school/schools/schoolTeacher.validator");
 
-    const studentSchemas = require("../managers/entities/school/student/student.schema");
-    const schoolSchemas = require("../managers/entities/school/schools/school.schema");
-    const schoolAdminSchemas = require("../managers/entities/school/schools/schoolAdmin.schema");
+    const studentSchema = require("../managers/entities/school/student/student.schema");
+    const schoolSchema = require("../managers/entities/school/schools/school.schema");
+    const schoolAdminSchema = require("../managers/entities/school/schools/schoolAdmin.schema");
+    const schoolTeacherSchema = require("../managers/entities/school/schools/schoolTeacher.schema");
 
     const commonModels = require("../managers/_common/schema.models");
 
     const allModels = {
-      ...studentSchemas,
-      ...schoolSchemas,
-      ...schoolAdminSchemas,
+      ...studentSchema,
+      ...schoolSchema,
+      ...schoolAdminSchema,
+      ...schoolTeacherSchema,
       ...commonModels,
     };
 
@@ -62,6 +65,7 @@ module.exports = class ManagersLoader {
       student: studentValidators,
       school: schoolValidators,
       schoolAdmin: schoolAdminValidators,
+      schoolTeacher: schoolTeacherValidators,
     };
 
     const validatorsLoader = new ValidatorsLoader({
@@ -75,9 +79,10 @@ module.exports = class ManagersLoader {
 
     this.validators = validatorsLoader.load();
     this.mongomodels = mongoLoader.load({
-      student: studentSchemas,
-      school: schoolSchemas,
-      schoolAdmin: schoolAdminSchemas,
+      student: studentSchema,
+      school: schoolSchema,
+      schoolAdmin: schoolAdminSchema,
+      schoolTeacher: schoolTeacherSchema,
     });
     this.resourceNodes = resourceMeshLoader.load();
   }
@@ -110,6 +115,9 @@ module.exports = class ManagersLoader {
       ...this.injectable,
       mongomodels: this.mongomodels,
     });
+
+    const AuthManager = require("../managers/entities/auth/Auth.manager");
+    this.managers.auth = new AuthManager(this.injectable);
 
     const HealthManager = require("../managers/entities/health/Health.manager");
     this.managers.health = new HealthManager(this.injectable);

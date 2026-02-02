@@ -9,7 +9,6 @@ module.exports = {
     address: Joi.string().min(10).max(300).required(),
     password: Joi.string().min(8).max(100).required(), // Derived from common password logic
     role: Joi.string().min(3).max(50).default("admin"),
-    staffId: Joi.string().required(),
     schoolId: Joi.string().optional(),
   }),
 
