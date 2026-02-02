@@ -161,11 +161,16 @@ module.exports = class ApiHandler {
         /** executed after all middleware finished */
 
         let body = req.body || {};
+        let query = req.query || {};
+        let params = req.params || {};
+
         await this._exec({
           targetModule: this.managers[moduleName],
           fnName,
           data: {
             ...body,
+            ...query,
+            ...params,
             ...results,
             res,
           },

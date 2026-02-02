@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const schoolSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
+    email: { type: String, required: true, lowercase: true },
     phone: { type: String },
     street: { type: String, required: true },
     city: { type: String, required: true },
@@ -16,7 +16,25 @@ const schoolSchema = new mongoose.Schema(
     },
     isDeleted: { type: Boolean, default: false },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      transform: (doc, ret) => {
+        delete ret.__v;
+        return ret;
+      },
+    },
+    toObject: {
+      virtuals: true,
+    },
+  },
+);
+
+schoolSchema.pre(
+  ["find", "findOne", "findById", "findOneAndUpdate"],
+  function () {
+    this.select("-__v");
+  },
 );
 
 module.exports = schoolSchema;

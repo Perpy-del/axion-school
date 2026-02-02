@@ -14,7 +14,7 @@ module.exports = class SchoolManager {
       "put=updateSchool",
       "delete=deleteSchool",
       "delete=deleteSchoolDetails",
-      "post=createNewAdmin",
+      "post=createAdmin",
       "get=getAdminDetails",
       "put=updateAdminDetails",
       "get=getAdmins",
@@ -29,61 +29,77 @@ module.exports = class SchoolManager {
     const adminResult = await this.validators.schoolAdmin.create(data.admin);
     result.admin = adminResult;
 
+    const session = await this.mongomodels.school.db.startSession();
+
     // Logic
-    // check if school exists
-    const existingSchool = await this.mongomodels.school.findOne({
-      email: result.email,
-    });
+    try {
+      let response;
+      await session.withTransaction(async () => {
+        // --- CHECK EXISTENCE ---
+        const existingSchool = await this.mongomodels.school
+          .findOne({
+            email: result.email,
+          })
+          .session(session);
 
-    if (existingSchool) {
-      return { ok: false, message: "School with this email already exists." };
-    }
+        if (existingSchool) throw new Error("School email already exists");
 
-    const existingSchoolAdmin = await this.mongomodels.schoolAdmin.findOne({
-      email: result.admin.email,
-    });
+        const existingAdmin = await this.mongomodels.schoolAdmin
+          .findOne({
+            email: result.admin.email,
+          })
+          .session(session);
 
-    if (existingSchoolAdmin) {
+        if (existingAdmin) throw new Error("Admin email already exists");
+
+        // --- CREATE SCHOOL ---
+        const newSchool = new this.mongomodels.school({
+          ...result,
+          schoolAdminId: new mongoose.Types.ObjectId(), // Placeholder
+        });
+        await newSchool.save({ session });
+
+        // --- HASH PASSWORD & CREATE ADMIN ---
+        const adminHashedPassword = await this.utils.encryptPassword(
+          result.admin.password,
+        );
+
+        const newSchoolAdmin = new this.mongomodels.schoolAdmin({
+          ...result.admin,
+          password: adminHashedPassword,
+          schoolId: newSchool._id,
+        });
+        await newSchoolAdmin.save({ session });
+
+        newSchool.schoolAdminId = newSchoolAdmin._id;
+        await newSchool.save({ session });
+
+        // Set the success response data inside the transaction
+        response = {
+          ok: true,
+          status: 201,
+          message: "School and Admin created successfully.",
+          data: { schoolId: newSchool._id, adminId: newSchoolAdmin._id },
+        };
+      });
+
+      return response;
+    } catch (error) {
       return {
         ok: false,
-        message: "School admin with this email already exists.",
+        message: error.message || "Transaction failed. No data was saved.",
       };
+    } finally {
+      await session.endSession();
     }
-
-    // // create school
-    const newSchool = new this.mongomodels.school({
-      ...result,
-      schoolAdminId: new mongoose.Types.ObjectId(),
-    });
-    await newSchool.save();
-
-    // create school admin
-    const adminHashedPassword = await this.utils.encryptPassword(
-      result.admin.password,
-    );
-    result.admin.password = adminHashedPassword;
-
-    const newSchoolAdmin = new this.mongomodels.schoolAdmin({
-      ...result.admin,
-      schoolId: newSchool._id,
-    });
-    await newSchoolAdmin.save();
-
-    newSchool.schoolAdminId = newSchoolAdmin._id;
-    await newSchool.save();
-
-    return {
-      ok: true,
-      status: 201,
-      message: "School created successfully.",
-      data: { schoolId: newSchool._id, adminId: newSchoolAdmin._id },
-    };
   }
 
   async schoolDetails({ schoolId }) {
-    const school = await this.mongomodels.school.findById(schoolId).lean();
+    const school = await this.mongomodels.school.findById(schoolId).select("-_id").lean();
 
-    if (!school) {
+    const deletedSchool = await this.mongomodels.school.findOne({ _id: schoolId, isDeleted: true })
+
+    if (!school || deletedSchool) {
       return { ok: false, message: "School not found." };
     }
 
@@ -125,8 +141,8 @@ module.exports = class SchoolManager {
 
     // Soft delete
     await this.mongomodels.school.findByIdAndUpdate(schoolId, {
-      deleted: true,
-    });
+      isDeleted: true,
+    }, { new: true });
 
     return { ok: true, message: "School deleted successfully." };
   }
@@ -144,7 +160,7 @@ module.exports = class SchoolManager {
   }
 
   // School Admin
-  async createNewAdmin({ res, data }) {
+  async createAdmin({ res, data }) {
     const existingSchool = await this.mongomodels.findById({
       schoolId: data.schoolId,
     });
@@ -193,6 +209,7 @@ module.exports = class SchoolManager {
       data: admin,
     };
   }
+
 
   async updateAdminDetails({ res, adminId, ...data }) {
     const existingAdmin = await this.mongomodels.schoolAdmin.findById(adminId);
