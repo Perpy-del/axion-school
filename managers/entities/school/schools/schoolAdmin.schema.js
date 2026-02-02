@@ -19,4 +19,11 @@ const schoolAdminSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+schoolAdminSchema.pre(
+  ["find", "findOne", "findById", "findOneAndUpdate"],
+  function () {
+    this.select("-__v");
+  },
+);
+
 module.exports = schoolAdminSchema;

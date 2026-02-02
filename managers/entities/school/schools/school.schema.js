@@ -37,4 +37,14 @@ schoolSchema.pre(
   },
 );
 
+schoolSchema.post('findOneAndDelete', async function (doc) {
+  if (doc) {
+    const SchoolAdmin = mongoose.model("SchoolAdmin");
+    
+    await SchoolAdmin.deleteMany({ schoolId: doc._id });
+    
+    console.log(`Cleanup: Admins for school ${doc.name} have been removed.`);
+  }
+});
+
 module.exports = schoolSchema;

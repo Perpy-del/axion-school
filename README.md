@@ -56,6 +56,7 @@ You add your local `.env` file, to add your variables to the project.
 * **Host Binding**: Configured the server to listen on `0.0.0.0` to ensure it accepts external traffic from the Railway proxy.
 
 ## 📈 Future Enhancements
+* **SuperAdmin Features & Role-Based Access Control (RBAC)**: Add super admin details and features and enable access control based on roles for accessing schools and authorization for some features.
 * **Security**: Implement `helmet` middleware to secure HTTP headers.
 * **Compression**: Use the compression middleware to reduce the size of the response body.
 * **Rate Limiting**: Protect your API from brute force attacks.
